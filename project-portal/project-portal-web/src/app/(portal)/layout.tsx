@@ -10,16 +10,12 @@ export default function PortalLayout({
   children: React.ReactNode;
 }) {
   return (
-    // <ProtectedRoute> uncomment when backend auth is implemented
-    <>
+    <ProtectedRoute>
       <PortalNavbar />
-      <div className="flex">
+      <div className="flex min-h-[calc(100vh-5rem)] max-h-[calc(100vh-5rem)] overflow-hidden">
         <PortalSidebar />
-        <main className="flex-1 p-4 md:p-6 lg:p-8">{children}</main>
+        <main className="flex-1 p-4 md:p-6 lg:p-8 bg-white/30 backdrop-blur-[1px] overflow-y-auto">{children}</main>
       </div>
-    </>
-    // </ProtectedRoute>
-    // For now, we won't enforce auth on the layout since the login/register pages are also under this layout. Once we have backend auth implemented,
-    // we can uncomment the ProtectedRoute and it will protect all routes under this layout.
+    </ProtectedRoute>
   );
 }

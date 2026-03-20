@@ -35,6 +35,9 @@ export const useStore = create<StoreState>()(
       name: "project-portal-store",
       partialize: (s) => ({
         token: s.token,
+        refreshToken: s.refreshToken,
+        expiresIn: s.expiresIn,
+        tokenType: s.tokenType,
         user: s.user,
         isAuthenticated: s.isAuthenticated,
         // search data is handled separately in its slice's loadPersistedSearchData but we can include it here if needed
@@ -56,7 +59,7 @@ export const useStore = create<StoreState>()(
 
           const path = window.location.pathname;
           if (path !== "/login" && path !== "/register") {
-            state?.refreshToken?.();
+            state?.refreshSession?.();
           }
         }
       },

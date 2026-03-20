@@ -1,8 +1,12 @@
 import { showToast } from "@/components/ui/Toast";
 import axios, { AxiosError } from "axios";
 
-export const API_BASE_URL =
+const RAW_API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL?.trim() || "http://localhost:8080";
+
+export const API_BASE_URL = RAW_API_BASE_URL.endsWith("/api/v1")
+  ? RAW_API_BASE_URL
+  : `${RAW_API_BASE_URL}/api/v1`;
 
 export const api = axios.create({
   baseURL: API_BASE_URL,

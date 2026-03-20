@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useStore } from '@/lib/store/store';
 import { Mail, Lock, ChevronRight, AlertCircle, Loader2 } from 'lucide-react';
 import { showToast } from '@/components/ui/Toast';
+import AuthNavigation from '@/components/AuthNavigation';
 
 export default function LoginClient() {
   const router = useRouter();
@@ -15,6 +16,8 @@ export default function LoginClient() {
   const login = useStore((s) => s.login);
   const serverError = useStore((s) => s.authError);
   const loading = useStore((s) => s.authLoading.login);
+  const isHydrated = useStore((s) => s.isHydrated);
+  const isAuthenticated = useStore((s) => s.isAuthenticated);
   const clearError = useStore((s) => s.clearError);
 
   // Form State
@@ -23,6 +26,12 @@ export default function LoginClient() {
   const [formErrors, setFormErrors] = useState<{ email?: string; password?: string }>({});
 
   const hasFormErrors = Object.values(formErrors).some((msg) => !!msg);
+
+  useEffect(() => {
+    if (isHydrated && isAuthenticated) {
+      router.replace(next);
+    }
+  }, [isHydrated, isAuthenticated, router, next]);
 
   const validate = () => {
     const errors: { email?: string; password?: string } = {};
@@ -36,8 +45,6 @@ export default function LoginClient() {
 
     if (!password) {
       errors.password = 'Password is required';
-    } else if (password.length < 6) {
-      errors.password = 'Minimum 6 characters';
     }
 
     return errors;
@@ -61,12 +68,21 @@ export default function LoginClient() {
       router.replace(next);
     } catch (err: any) {
       console.error('Login submission error:', err);
-      showToast('error', err?.message ?? 'Login failed');
+      showToast('error', err?.response?.data?.error || err?.message || 'Login failed');
     }
   }
 
   return (
-    <div className="space-y-6 animate-fadeIn">
+    <div className="relative space-y-6 animate-fadeIn">
+      <div className="pointer-events-none absolute -z-10 inset-0 overflow-hidden rounded-3xl">
+        <div className="absolute -top-16 -left-16 h-56 w-56 rounded-full bg-emerald-200/30 blur-3xl" />
+        <div className="absolute top-10 right-0 h-56 w-56 rounded-full bg-cyan-200/30 blur-3xl" />
+      </div>
+
+      <div className="flex justify-end">
+        <AuthNavigation />
+      </div>
+
       {/* Header */}
       <div className="bg-linear-to-r from-emerald-500 to-teal-600 rounded-2xl p-6 text-white">
         <div className="flex flex-col md:flex-row md:items-center justify-between">
@@ -85,7 +101,7 @@ export default function LoginClient() {
       </div>
 
       {/* Form Card */}
-      <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 max-w-lg mx-auto">
+      <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-emerald-100 max-w-lg mx-auto">
         {(hasFormErrors || serverError) && (
           <div
             className={`mb-4 p-3 rounded-lg border text-sm flex items-start gap-2 ${
@@ -121,7 +137,7 @@ export default function LoginClient() {
                   formErrors.email ? 'border-red-500' : 'border-gray-300'
                 }`}
                 placeholder="you@domain.com"
-                type="text"
+                type="email"
                 autoComplete="email"
               />
             </div>

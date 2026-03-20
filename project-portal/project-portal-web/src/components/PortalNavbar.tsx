@@ -2,16 +2,14 @@
 
 import { useStore } from '@/lib/store/store';
 import { Menu, Bell, Search, Globe, User, Sparkles } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import AuthNavigation from './AuthNavigation';
 
 const PortalNavbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const router = useRouter();
 
   const user = useStore((s) => s.user);
   const isHydrated = useStore((s) => s.isHydrated);
-  const logout = useStore((s) => s.logout);
 
   const displayName = user?.full_name || 'Guest';
   const subtitle = user ? 'Verified Partner' : 'Not signed in';
@@ -79,23 +77,7 @@ const PortalNavbar = () => {
                 <User className="w-6 h-6 text-emerald-700" />
               </button>
 
-              {isHydrated && !user && (
-                <button
-                  onClick={() => router.push('/login')}
-                  className="hidden md:inline-flex px-3 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition"
-                >
-                  Login
-                </button>
-              )}
-
-              {isHydrated && user && (
-                <button
-                  onClick={() => logout()}
-                  className="hidden md:inline-flex px-3 py-2 rounded-lg bg-gray-900 text-white hover:bg-black transition"
-                >
-                  Logout
-                </button>
-              )}
+              {isHydrated && <div className="hidden md:block"><AuthNavigation /></div>}
 
             </div>
           </div>

@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useStore } from '@/lib/store/store';
-import { Mail, Lock, ChevronRight, AlertCircle, Loader2, User } from 'lucide-react';
+import { Mail, Lock, ChevronRight, AlertCircle, Loader2, User, Building2 } from 'lucide-react';
 import { showToast } from '@/components/ui/Toast';
+import AuthNavigation from '@/components/AuthNavigation';
 
 export default function RegisterClient() {
   const router = useRouter();
@@ -15,15 +16,24 @@ export default function RegisterClient() {
   const register = useStore((s) => s.register);
   const serverError = useStore((s) => s.authError);
   const loading = useStore((s) => s.authLoading.register);
+  const isHydrated = useStore((s) => s.isHydrated);
+  const isAuthenticated = useStore((s) => s.isAuthenticated);
   const clearError = useStore((s) => s.clearError);
 
   // Form State
   const [full_name, setFullName] = useState('');
+  const [organization, setOrganization] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [formErrors, setFormErrors] = useState<{ full_name?: string; email?: string; password?: string }>({});
 
   const hasFormErrors = Object.values(formErrors).some((msg) => !!msg);
+
+  useEffect(() => {
+    if (isHydrated && isAuthenticated) {
+      router.replace(next);
+    }
+  }, [isHydrated, isAuthenticated, router, next]);
 
   const validate = () => {
     const errors: { full_name?: string; email?: string; password?: string } = {};
@@ -42,8 +52,8 @@ export default function RegisterClient() {
 
     if (!password) {
       errors.password = 'Password is required';
-    } else if (password.length < 6) {
-      errors.password = 'Minimum 6 characters';
+    } else if (password.length < 8) {
+      errors.password = 'Minimum 8 characters';
     }
 
     return errors;
@@ -62,17 +72,31 @@ export default function RegisterClient() {
     }
 
     try {
-      await register({full_name, email, password});
-      showToast('success', 'Account created successfully');
-      router.replace(next);
+      const response = await register({
+        full_name,
+        email,
+        password,
+        organization: organization.trim() || undefined,
+      });
+      showToast('success', response?.message || 'Account created. Please login to continue.');
+      router.replace('/login');
     } catch (err: any) {
       console.error('Register submission error:', err);
-      showToast('error', err?.message ?? 'Registration failed');
+      showToast('error', err?.response?.data?.error || err?.message || 'Registration failed');
     }
   }
 
   return (
-    <div className="space-y-6 animate-fadeIn">
+    <div className="relative space-y-6 animate-fadeIn">
+      <div className="pointer-events-none absolute -z-10 inset-0 overflow-hidden rounded-3xl">
+        <div className="absolute -top-16 -left-16 h-56 w-56 rounded-full bg-emerald-200/30 blur-3xl" />
+        <div className="absolute top-10 right-0 h-56 w-56 rounded-full bg-cyan-200/30 blur-3xl" />
+      </div>
+
+      <div className="flex justify-end">
+        <AuthNavigation />
+      </div>
+
       {/* Header */}
       <div className="bg-linear-to-r from-emerald-500 to-teal-600 rounded-2xl p-6 text-white">
         <div className="flex flex-col md:flex-row md:items-center justify-between">
@@ -91,7 +115,7 @@ export default function RegisterClient() {
       </div>
 
       {/* Form Card */}
-      <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 max-w-lg mx-auto">
+      <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-emerald-100 max-w-lg mx-auto">
         {(hasFormErrors || serverError) && (
           <div
             className={`mb-4 p-3 rounded-lg border text-sm flex items-start gap-2 ${
@@ -156,6 +180,21 @@ export default function RegisterClient() {
           </div>
 
           <div>
+            <label className="text-sm font-medium text-gray-700">Organization (optional)</label>
+            <div className="relative mt-1">
+              <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                value={organization}
+                onChange={(e) => setOrganization(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg outline-none transition-colors focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                placeholder="CarbonScribe Cooperative"
+                type="text"
+                autoComplete="organization"
+              />
+            </div>
+          </div>
+
+          <div>
             <label className="text-sm font-medium text-gray-700">Password</label>
             <div className="relative mt-1">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -170,7 +209,7 @@ export default function RegisterClient() {
                 }`}
                 placeholder="••••••••"
                 type="password"
-                autoComplete="current-password"
+                autoComplete="new-password"
               />
             </div>
             {formErrors.password && <p className="mt-1 text-sm text-red-600">{formErrors.password}</p>}

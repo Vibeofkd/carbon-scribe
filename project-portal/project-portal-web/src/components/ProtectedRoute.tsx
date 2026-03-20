@@ -31,14 +31,25 @@ export default function ProtectedRoute({
     }
   }, [isHydrated, isAuthenticated, router, pathname, roles, user?.role]);
 
-  // Prevent flicker during hydration
-  if (!isHydrated) return null;
+  const renderLoading = (message: string) => (
+    <div className="min-h-[60vh] grid place-items-center">
+      <div className="text-center">
+        <div className="mx-auto h-10 w-10 rounded-full border-4 border-emerald-200 border-t-emerald-600 animate-spin" />
+        <p className="mt-3 text-sm text-gray-600">{message}</p>
+      </div>
+    </div>
+  );
 
-  // While redirecting
-  if (!isAuthenticated) return null;
+  // Prevent blank screen during hydration
+  if (!isHydrated) return renderLoading('Preparing your dashboard...');
+
+  // While redirecting unauthenticated users
+  if (!isAuthenticated) return renderLoading('Redirecting to login...');
 
   // RBAC failed
-  if (roles?.length && user?.role && !roles.includes(user.role)) return null;
+  if (roles?.length && user?.role && !roles.includes(user.role)) {
+    return renderLoading('Checking access permissions...');
+  }
 
   return <>{children}</>;
 }
