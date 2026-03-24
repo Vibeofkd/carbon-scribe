@@ -19,6 +19,7 @@ import { ApiKeyModule } from './api-key/api-key.module';
 import { PortfolioModule } from './portfolio/portfolio.module';
 import { IpfsModule } from './ipfs/ipfs.module';
 import { RbacModule } from './rbac/rbac.module';
+import { CreditModule } from './credit/credit.module';
 import { FrameworkRegistryModule } from './framework-registry/framework-registry.module';
 import { ScheduleModule } from '@nestjs/schedule';
 
@@ -42,6 +43,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     ApiKeyModule,
     PortfolioModule,
     IpfsModule,
+    CreditModule,
     FrameworkRegistryModule,
   ],
   controllers: [AppController],

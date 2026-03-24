@@ -48,8 +48,9 @@ async function main() {
       name: 'Wind Farm Alpha',
       description: 'Renewable energy project',
       methodology: 'VCS',
-      standard: 'Verified Carbon Standard',
+      verificationStandard: 'Verified Carbon Standard',
       country: 'Brazil',
+      startDate: new Date('2018-01-01'),
     },
   });
 
@@ -58,15 +59,15 @@ async function main() {
     update: {},
     create: {
       id: 'seed-credit-1',
-      projectId: project1.id,
+      project: { connect: { id: project1.id } },
       projectName: 'Wind Farm Alpha',
       country: 'Brazil',
       methodology: 'VCS',
-      standard: 'VCS',
-      vintageYear: 2023,
-      price: 12.5,
+      verificationStandard: 'VCS',
+      vintage: 2023,
+      pricePerTon: 12.5,
       totalAmount: 10000,
-      available: 8000,
+      availableAmount: 8000,
     },
   });
 
@@ -75,13 +76,29 @@ async function main() {
     update: {},
     create: {
       id: 'seed-credit-2',
+      project: { connect: { id: 'seed-project-2' } },
       projectName: 'Solar Park Beta',
       country: 'India',
       methodology: 'CDM',
-      vintageYear: 2024,
-      price: 8.0,
+      vintage: 2024,
+      pricePerTon: 8.0,
       totalAmount: 5000,
-      available: 5000,
+      availableAmount: 5000,
+    },
+  });
+
+  // Create a second project for the second seed credit (connected above)
+  await prisma.project.upsert({
+    where: { id: 'seed-project-2' },
+    update: {},
+    create: {
+      id: 'seed-project-2',
+      name: 'Solar Park Beta',
+      description: 'Solar generation project',
+      methodology: 'CDM',
+      verificationStandard: 'Gold Standard',
+      country: 'India',
+      startDate: new Date('2020-01-01'),
     },
   });
 
