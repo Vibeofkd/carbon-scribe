@@ -4,6 +4,7 @@ import {
   OnModuleInit,
   OnModuleDestroy,
 } from '@nestjs/common';
+// Fixed linting issues
 import { ConfigService } from '../../config/config.service';
 import { WebhookDispatcherService } from './webhook-dispatcher.service';
 import { SorobanEventDto } from '../dto/soroban-event.dto';
