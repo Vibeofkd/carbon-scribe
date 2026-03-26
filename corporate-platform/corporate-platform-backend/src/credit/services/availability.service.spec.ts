@@ -56,5 +56,8 @@ describe('AvailabilityService', () => {
     await expect(
       service.decrementAvailability('c1', 10, 'u1', 'purchase', 'otherCompany'),
     ).rejects.toThrow();
+    expect(prisma.credit.findFirst).toHaveBeenCalledWith({
+      where: { id: 'c1', companyId: 'otherCompany' },
+    });
   });
 });

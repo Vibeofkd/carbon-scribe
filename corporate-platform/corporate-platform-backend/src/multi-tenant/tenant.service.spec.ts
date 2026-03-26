@@ -89,6 +89,35 @@ describe('TenantService', () => {
     expect(resolution.deferredApiKeyResolution).toBe(true);
   });
 
+  it('extracts tenant from subdomain when base domain matches', () => {
+    const request = buildRequest({
+      headers: { host: 'company-sub.platform.com' },
+    } as Partial<Request>);
+
+    const resolution = service.resolveTenantFromRequest(request);
+    expect(resolution.tenant).toEqual(
+      expect.objectContaining({
+        companyId: 'company-sub',
+        source: 'subdomain',
+      }),
+    );
+  });
+
+  it('extracts tenant from /companies/:companyId path', () => {
+    const request = buildRequest({
+      path: '/api/v1/companies/company-path/portfolio',
+      url: '/api/v1/companies/company-path/portfolio',
+    } as Partial<Request>);
+
+    const resolution = service.resolveTenantFromRequest(request);
+    expect(resolution.tenant).toEqual(
+      expect.objectContaining({
+        companyId: 'company-path',
+        source: 'path',
+      }),
+    );
+  });
+
   it('allows public auth routes without tenant context', () => {
     const request = buildRequest({
       method: 'POST',
@@ -98,6 +127,42 @@ describe('TenantService', () => {
     const resolution = service.resolveTenantFromRequest(request);
     expect(resolution.tenant).toBeNull();
     expect(resolution.allowWithoutTenant).toBe(true);
+  });
+
+  it('rejects malformed bearer tokens', () => {
+    const request = buildRequest({
+      headers: { authorization: 'Bearer malformed-token' },
+    } as Partial<Request>);
+
+    expect(() => service.resolveTenantFromRequest(request)).toThrow(
+      UnauthorizedException,
+    );
+  });
+
+  it('rejects empty tenant headers on protected routes', () => {
+    const request = buildRequest({
+      headers: { 'x-tenant-id': '   ' },
+    } as Partial<Request>);
+
+    expect(() => service.resolveTenantFromRequest(request)).toThrow(
+      UnauthorizedException,
+    );
+  });
+
+  it('allows system bypass with configured token', () => {
+    process.env.TENANT_SYSTEM_BYPASS_TOKEN = 'tenant-bypass-secret';
+    const request = buildRequest({
+      headers: { 'x-tenant-bypass-token': 'tenant-bypass-secret' },
+    } as Partial<Request>);
+
+    const resolution = service.resolveTenantFromRequest(request);
+    expect(resolution.tenant).toEqual(
+      expect.objectContaining({
+        source: 'system',
+        bypassIsolation: true,
+        companyId: '*',
+      }),
+    );
   });
 
   it('rejects protected route without tenant context', () => {

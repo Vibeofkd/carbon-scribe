@@ -68,4 +68,39 @@ describe('TenantGuard', () => {
 
     expect(() => guard.canActivate(context)).toThrow(ForbiddenException);
   });
+
+  it('blocks cross-tenant header scope access', () => {
+    tenantService.isPublicRoute.mockReturnValue(false);
+    tenantService.extractRouteCompanyId.mockReturnValue(null);
+    const context = buildContext({
+      headers: { 'x-tenant-id': 'company-b' },
+      tenant: {
+        companyId: 'company-a',
+        userId: 'user-1',
+        role: 'admin',
+        source: 'jwt',
+      },
+      deferredApiKeyResolution: false,
+    } as unknown as Request);
+
+    expect(() => guard.canActivate(context)).toThrow(ForbiddenException);
+  });
+
+  it('allows cross-tenant route when bypass isolation is enabled', () => {
+    tenantService.isPublicRoute.mockReturnValue(false);
+    tenantService.extractRouteCompanyId.mockReturnValue('company-b');
+    const context = buildContext({
+      path: '/api/v1/companies/company-b/orders',
+      tenant: {
+        companyId: '*',
+        userId: 'system:tenant-bypass',
+        role: 'system_admin',
+        source: 'system',
+        bypassIsolation: true,
+      },
+      deferredApiKeyResolution: false,
+    } as unknown as Request);
+
+    expect(guard.canActivate(context)).toBe(true);
+  });
 });
