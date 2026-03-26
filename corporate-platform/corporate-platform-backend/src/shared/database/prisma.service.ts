@@ -38,6 +38,9 @@ export class PrismaService
     'Report',
     'Activity',
     'ApiKey',
+    'TeamMember',
+    'Role',
+    'Invitation',
     'IpfsDocument',
     'TransactionConfirmation',
   ]);

@@ -27,6 +27,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { TenantModule } from './multi-tenant/tenant.module';
 import { TenantMiddleware } from './multi-tenant/middleware/tenant.middleware';
 import { OrderModule } from './order/order.module';
+import { TeamManagementModule } from './team-management/team-management.module';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { OrderModule } from './order/order.module';
     TenantModule,
     CsrdModule,
     OrderModule,
+    TeamManagementModule,
   ],
   controllers: [AppController],
   providers: [AppService],
