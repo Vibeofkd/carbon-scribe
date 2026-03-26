@@ -930,6 +930,8 @@ model ProjectScorecard {
   @@index([projectId, calculationDate])
   @@index([performanceRank])
   @@map("project_scorecards")
+}
+
 // CSRD Compliance
 // ==========================================
 
