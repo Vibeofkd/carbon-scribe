@@ -1,10 +1,20 @@
-import { Controller, Get, Query, Param, Patch, Body } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { CreditService } from './credit.service';
 import { CreditQueryDto } from './dto/credit-query.dto';
 import { CreditUpdateDto } from './dto/credit-update.dto';
 import { Tenant } from '../multi-tenant/decorators/tenant.decorator';
 import { TenantContext } from '../multi-tenant/interfaces/tenant-context.interface';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('api/v1/credits')
 export class CreditController {
   constructor(private readonly service: CreditService) {}
