@@ -1,15 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { TransferService } from '../../stellar/transfer.service';
+import { CarbonAssetService } from '../../stellar/contracts/carbon-asset.service';
 import { PrismaService } from '../../shared/database/prisma.service';
 
 @Injectable()
 export class PostPurchaseService {
   private readonly logger = new Logger(PostPurchaseService.name);
 
-  constructor(
-    private readonly transferService: TransferService,
-    private readonly prisma: PrismaService,
-  ) {}
+  constructor(\n    private readonly carbonAssetService: CarbonAssetService,\n    private readonly prisma: PrismaService,\n  ) {}
 
   async handleOrderCompleted(orderId: string) {
     try {
@@ -33,18 +30,7 @@ export class PostPurchaseService {
       // Group credits by project or iterate through items
       for (const item of order.items) {
         // Trigger transfer for each item
-        const dto = {
-          purchaseId: `${orderId}-${item.id}`, // specific to item
-          companyId: order.companyId,
-          projectId: item.credit.projectId || 'unknown_project',
-          amount: item.quantity,
-          contractId:
-            'CAW7LUESK5RWH75W7IL64HYREFM5CPSFASBVVPVO2XOBC6AKHW4WJ6TM', // Carbon Asset Contract
-          fromAddress: 'GB_PROJECT_PROXY', // In real system, derived from project
-          toAddress: 'GB_COMPANY_PROXY', // In real system, derived from company
-        };
-
-        await this.transferService.initiateTransfer(dto);
+        const companyWallet = 'GB_COMPANY_WALLET'; // Derive from company DB\n        await this.carbonAssetService.transfer(companyWallet, item.credit.id, BigInt(item.quantity));
       }
 
       this.logger.log(`Post-purchase transfer initiated for order ${orderId}`);

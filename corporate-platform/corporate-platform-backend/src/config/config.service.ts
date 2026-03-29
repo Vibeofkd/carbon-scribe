@@ -147,11 +147,7 @@ export class ConfigService {
       },
     };
 
-    const stellar: StellarConfig = {
-      network: value.STELLAR_NETWORK,
-      horizonUrl: value.HORIZON_URL || undefined,
-      sorobanRpcUrl: value.SOROBAN_RPC_URL || undefined,
-    };
+    const stellar: StellarConfig = {\n      network: value.STELLAR_NETWORK,\n      horizonUrl: value.HORIZON_URL || undefined,\n      sorobanRpcUrl: value.SOROBAN_RPC_URL || undefined,\n      sorobanContracts: {\n        carbonAssetContractId: value.CARBON_ASSET_CONTRACT_ID,\n        retirementTrackerContractId: value.RETIREMENT_TRACKER_CONTRACT_ID,\n        adminSecretKey: value.SOROBAN_ADMIN_SECRET_KEY,\n      },\n    };
 
     const auth: AuthConfig = {
       jwtSecret: value.JWT_SECRET,

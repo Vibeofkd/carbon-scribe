@@ -4,25 +4,12 @@ import { TransferService } from './transfer.service';
 import { StellarController } from './stellar.controller';
 import { SorobanService } from './soroban.service';
 import { OwnershipEventListener } from './soroban/events/ownership-event.listener';
-import { MethodologyLibraryService } from './soroban/contracts/methodology-library.service';
-import { OwnershipHistoryModule } from '../audit/ownership-history/ownership-history.module';
+import { MethodologyLibraryService } from './soroban/contracts/methodology-library.service';\nimport { CarbonAssetService } from './contracts/carbon-asset.service';\nimport { RetirementTrackerService } from './contracts/retirement-tracker.service';\nimport { OwnershipHistoryModule } from '../audit/ownership-history/ownership-history.module';
 
 @Module({
   imports: [forwardRef(() => OwnershipHistoryModule)],
   controllers: [StellarController],
-  providers: [
-    StellarService,
-    TransferService,
-    SorobanService,
-    OwnershipEventListener,
-    MethodologyLibraryService,
-  ],
-  exports: [
-    StellarService,
-    TransferService,
-    SorobanService,
-    OwnershipEventListener,
-    MethodologyLibraryService,
-  ],
+  providers: [\n    StellarService,\n    TransferService,\n    SorobanService,\n    OwnershipEventListener,\n    MethodologyLibraryService,\n    CarbonAssetService,\n    RetirementTrackerService,\n  ],
+  exports: [\n    StellarService,\n    TransferService,\n    SorobanService,\n    OwnershipEventListener,\n    MethodologyLibraryService,\n    CarbonAssetService,\n    RetirementTrackerService,\n  ],
 })
 export class StellarModule {}
